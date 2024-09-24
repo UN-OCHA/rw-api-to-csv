@@ -1,0 +1,15 @@
+{
+  "name": "rw-api-to-csv",
+  "version": "0.0.1",
+  "description": "ReliefWeb API to CSV",
+  "main": "index.mjs",
+  "scripts": {
+    "start": "nodejs index.mjs > data.csv"
+  },
+  "author": "Attiks",
+  "license": "MIT",
+  "dependencies": {
+    "@json2csv/plainjs": "^7.0.6",
+    "qs": "^6.13.0"
+  }
+}
