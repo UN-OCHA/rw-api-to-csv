@@ -1,14 +1,24 @@
 import { Parser } from '@json2csv/plainjs';
-import * as qs from 'qs';
 import * as fs from 'fs';
+
+// Filters.
+let filters = [
+    {
+        field: 'date.created',
+        value: {
+            from: '2024-01-01T00:00:00+00:00',
+            to: '2024-12-31T23:59:59+00:00'
+        }
+    }
+];
 
 /**
  * Get data from RW API.
- * 
- * @param {int} offset 
- * @param {int} limit 
+ *
+ * @param {int} offset
+ * @param {int} limit
  */
-async function getData(offset = 0, limit = 10) {
+async function getData(offset = 0, limit = 10, filters = {}) {
     // Base URL for the API.
     const url = new URL('https://api.reliefweb.int/v1/reports');
 
@@ -19,6 +29,10 @@ async function getData(offset = 0, limit = 10) {
         preset: 'latest',
         offset: offset,
         limit: limit,
+        filter: {
+            operator: 'AND',
+            conditions: filters,
+        },
         fields: {
             include: [
                 'id',
@@ -47,24 +61,18 @@ async function getData(offset = 0, limit = 10) {
         }
     };
 
-    url.search = qs.stringify(params);
-    const json = await fetch(url.toString())
-        .then(res => res.json())
+    const json = await fetch(url.toString(), {
+        method: 'POST',
+        body: JSON.stringify(params)
+    }).then(res => res.json())
 
     return json;
 }
 
 /**
- * Extract and build csv data.
- * 
- * @param {int} offset 
- * @param {int} limit 
+ * Build and write csv data.
  */
-async function writeCsv(offset = 0, limit = 10) {
-    let data = await getData(offset, limit);
-    let results = data.data;
-    let needsHeader = offset == 0;
-
+async function writeCsv(results, needsHeader) {
     // Define the output for each field.
     const opts = {
         fields: [
@@ -171,19 +179,25 @@ async function writeCsv(offset = 0, limit = 10) {
     let limit = 1000;
 
     // Max number of runs.
-    let maxRuns = 5;
+    let maxRuns = 50;
 
     let currentRun = 1;
-
     let writeStream = fs.createWriteStream('./data.csv');
-
     while (currentRun <= maxRuns) {
         console.info('Run ' + currentRun + ' of ' + maxRuns);
 
         let offset = (currentRun - 1) * limit;
-        let csv = await writeCsv(offset, limit);
-        if (!csv) {
+        let data = await getData(offset, limit, filters);
+        if (!data) {
             console.error('No data received.');
+            break;
+        }
+
+        let results = data.data;
+        let needsHeader = offset == 0;
+        let csv = await writeCsv(results, needsHeader);
+        if (!csv) {
+            console.error('No data written.');
             break;
         }
 

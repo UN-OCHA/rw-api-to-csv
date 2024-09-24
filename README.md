@@ -9,6 +9,24 @@ npm start
 
 You will now have a file `data.csv` containing the data.
 
+## Filters
+
+You can change the used filters at the top of the file.
+
+Check [API documentation](https://apidoc.reliefweb.int/fields-tables#reports) for an overview.
+
+```js
+let filters = [
+    {
+        field: 'date.created',
+        value: {
+            from: '2024-01-01T00:00:00+00:00',
+            to: '2024-12-31T23:59:59+00:00'
+        }
+    }
+];
+```
+
 ## Customize
 
 To change the fields to fetch from ReliefWeb API, have a look at `getData()`,
