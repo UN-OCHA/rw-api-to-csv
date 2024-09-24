@@ -45,7 +45,7 @@ async function getData(offset = 0, limit = 10) {
 }
 
 (async function(){
-    let data = await getData();
+    let data = await getData(0, 1000);
     let results = data.data;
     //console.log(JSON.stringify(results));
 
@@ -112,7 +112,7 @@ async function getData(offset = 0, limit = 10) {
           value: (row) => row.fields.format && row.fields.format.map((x) => x.name).join(',')
         },
         {
-          label: 'fields.ocha_product.name',
+          label: 'OCHA product',
           value: (row) => row.fields.ocha_product && row.fields.ocha_product.map((x) => x.name).join(',')
         },
         {
@@ -124,12 +124,12 @@ async function getData(offset = 0, limit = 10) {
           value: (row) => row.fields.file && row.fields.file.map((x) => x.filename).join(',')
         },
         {
-          label: 'fields.image.url-small',
-          value: (row) => row.fields.image && row.fields.image.map((x) => x.url_small).join(',')
+          label: 'Image',
+          value: (row) => row.fields.image && row.fields.image['url-small']
         },
         {
-          label: 'fields.headline.title',
-          value: 'fields.headline.title',
+          label: 'Headline title',
+          value: (row) => row.fields.headline && row.fields.headline.title
         },
         {
           label: 'Date created',
