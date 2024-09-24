@@ -9,9 +9,12 @@ import * as fs from 'fs';
  * @param {int} limit 
  */
 async function getData(offset = 0, limit = 10) {
+    // Base URL for the API.
     const url = new URL('https://api.reliefweb.int/v1/reports');
+
+    // Filters for the API.
     const params = {
-        appname: 'rwint-user-0',
+        appname: 'rw-api-csv-rw-1085',
         profile: 'list',
         preset: 'latest',
         offset: offset,
@@ -62,8 +65,8 @@ async function writeCsv(offset = 0, limit = 10) {
     let results = data.data;
     let needsHeader = offset == 0;
 
+    // Define the output for each field.
     const opts = {
-        header: needsHeader,
         fields: [
             {
                 label: 'Id',
@@ -153,7 +156,8 @@ async function writeCsv(offset = 0, limit = 10) {
                 label: 'Date original',
                 value: 'fields.date.original',
             },
-        ]
+        ],
+        header: needsHeader,
     };
 
     const json2csvParser = new Parser(opts);
@@ -175,8 +179,14 @@ async function writeCsv(offset = 0, limit = 10) {
 
     while (currentRun <= maxRuns) {
         console.info('Run ' + currentRun + ' of ' + maxRuns);
+
         let offset = (currentRun - 1) * limit;
         let csv = await writeCsv(offset, limit);
+        if (!csv) {
+            console.error('No data received.');
+            break;
+        }
+
         writeStream.write(csv);
         currentRun++
     }
