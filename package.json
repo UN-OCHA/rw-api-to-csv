@@ -4,7 +4,7 @@
   "description": "ReliefWeb API to CSV",
   "main": "index.mjs",
   "scripts": {
-    "start": "nodejs index.mjs > data.csv"
+    "start": "nodejs index.mjs"
   },
   "author": "Attiks",
   "license": "MIT",
