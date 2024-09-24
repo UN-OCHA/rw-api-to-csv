@@ -1,10 +1,8 @@
 name: Run
 
 on:
-  push:
-    branches: [ main ] # Trigger the workflow on every commit to the main branch.
   pull_request:
-    branches: [ main ] # Trigger the workflow on pull requests targeting the main branch.
+    branches: [ main ]
 
 jobs:
   build:
@@ -29,8 +27,4 @@ jobs:
 
     - name: Commit
       run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git add data.csv
-          git commit -m "chore: Data generated"
-          git push      
+          head -n50 data.csv
