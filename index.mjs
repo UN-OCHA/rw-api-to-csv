@@ -189,7 +189,7 @@ async function writeCsv(results, needsHeader) {
         let offset = (currentRun - 1) * limit;
         let data = await getData(offset, limit, filters);
         if (!data) {
-            console.error('No data received.');
+            console.error('No more data found.');
             break;
         }
 
@@ -197,7 +197,7 @@ async function writeCsv(results, needsHeader) {
         let needsHeader = offset == 0;
         let csv = await writeCsv(results, needsHeader);
         if (!csv) {
-            console.error('No data written.');
+            console.error('No more data too write.');
             break;
         }
 
