@@ -44,3 +44,7 @@ Make sure to also define the output of the field in `writeCsv()`, the code depen
 - Simple property (ex. Title): `fields.title`
 - Nested property (ex. Primary country): `fields.primary_country.iso3`
 - Array of objects (ex. Country): `(row) => row.fields.country.map((x) => x.iso3).join(',')`
+
+## GDrive
+
+`data.csv` is uploaded to https://drive.google.com/drive/folders/0B3AvU8yMBJnEWk9EQmR1OXVIdVU
