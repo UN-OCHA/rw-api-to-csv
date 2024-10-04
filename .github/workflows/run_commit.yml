@@ -42,4 +42,4 @@ jobs:
         name: data.csv
         folderId: 0B3AvU8yMBJnEWk9EQmR1OXVIdVU
         credentials: ${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}
-        encoded: false          
+        encoded: true
