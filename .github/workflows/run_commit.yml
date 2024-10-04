@@ -35,11 +35,17 @@ jobs:
           git commit -m "chore: Data generated"
           git push
 
+    - name: Get current date
+      id: date
+      run: |
+        echo "{date}={$(date +'%Y-%m-%d')}" >> $GITHUB_STATE
+
     - name: Upload to gdrive
       uses: mathisve/gdrive-upload-action@main
       with:
         filename: data.csv
-        name: data.csv
+        name: data-${{ env.date }}.csv
         folderId: 0B3AvU8yMBJnEWk9EQmR1OXVIdVU
         credentials: ${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}
         encoded: true
+        overwrite: true
