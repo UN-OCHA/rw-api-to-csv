@@ -118,7 +118,7 @@ async function writeCsv(results, needsHeader) {
             },
             {
                 label: 'Country',
-                value: (row) => row.fields.country.map((x) => x.iso3).join(',')
+                value: (row) => row.fields.country && row.fields.country.map((x) => x.iso3).join(',')
             },
             {
                 label: 'Disaster name',
@@ -179,7 +179,7 @@ async function writeCsv(results, needsHeader) {
     let limit = 1000;
 
     // Max number of runs.
-    let maxRuns = 50;
+    let maxRuns = 99;
 
     let currentRun = 1;
     let writeStream = fs.createWriteStream('./data.csv');
