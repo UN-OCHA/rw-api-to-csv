@@ -197,7 +197,7 @@ async function writeCsv(results, needsHeader) {
         let needsHeader = offset == 0;
         let csv = await writeCsv(results, needsHeader);
         if (!csv) {
-            console.error('No more data too write.');
+            console.error('No more data to write.');
             break;
         }
 
