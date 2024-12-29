@@ -57,6 +57,7 @@ async function getData(offset = 0, limit = 10, filters = {}) {
                 'headline.title',
                 'date.created',
                 'date.original',
+                'status',
             ]
         }
     };
@@ -83,6 +84,10 @@ async function writeCsv(results, needsHeader) {
             {
                 label: 'Title',
                 value: 'fields.title'
+            },
+            {
+                label: 'Status',
+                value: 'fields.status'
             },
             {
                 label: 'Url',
