@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Export to CSV</title>
+<style>
+a, a:hover {
+  color: #29a4d9;
+  padding: 3px;
+}
+</style>
+</head>
+<body>
+  <h1>Generate CSV file</h1>
+  <p>Generate a CSV file with metadata for all found ReiliefWeb reports.</p>
+  <p>Steps:</p>
+  <ol>
+    <li>Do a search on https://reliefweb.int/updates</li>
+    <li>Scroll down and click on the API button</li>
+    <li>Copy the JSON payload in the textfield</li>
+    <li>Hit execute and wait a bit</li>
+  </ol>
+<div>
+  <p>JSON payload: </p>
+  <textarea rows="20" cols="120" id="json_in" placeholder="{
+    field: 'date.created',
+    value: {
+        from: '2024-01-01T00:00:00+00:00',
+        to: '2024-01-05T23:59:59+00:00'
+    }
+}"></textarea>
+  <div><button id="execute">Execute</button></div>
+</div>
+
+<script>
+
+// Conditions.
+let conditions = [
+    {
+        field: 'date.created',
+        value: {
+            from: '2024-01-01T00:00:00+00:00',
+            to: '2024-01-05T23:59:59+00:00'
+        }
+    }
+];
+
+/**
+ * Get data from RW API.
+ *
+ * @param {int} offset
+ * @param {int} limit
+ */
+async function getData(offset = 0, limit = 10, conditions = []) {
+    // Base URL for the API.
+    const url = new URL('https://api.reliefweb.int/v1/reports');
+
+    // Filters for the API.
+    const params = {
+        appname: 'rw-api-csv-rw-1085',
+        profile: 'list',
+        preset: 'latest',
+        offset: offset,
+        limit: limit,
+        filter: {
+            operator: 'AND',
+            conditions: conditions,
+        },
+        fields: {
+            include: [
+                'id',
+                'url',
+                'url_alias',
+                'title',
+                'origin',
+                'language.code',
+                'source.name',
+                'source.shortname',
+                'source.type',
+                'primary_country.iso3',
+                'country.iso3',
+                'disaster.type',
+                'disaster.name',
+                'disaster.type.name',
+                'format.name',
+                'ocha_product.name',
+                'theme.name',
+                'file.filename',
+                'image.url-small',
+                'headline.title',
+                'date.created',
+                'date.original',
+            ]
+        }
+    };
+
+    const response = await fetch(url.toString(), {
+        method: 'POST',
+        body: JSON.stringify(params)
+    });
+    const json = await response.json();
+
+    return json;
+}
+
+async function getJson(conditions) {
+  // Max number of records to fetch.
+  let limit = 1000;
+
+  // Max number of runs.
+  let maxRuns = 99;
+
+  let output = [];
+
+  let currentRun = 1;
+  while (currentRun <= maxRuns) {
+      console.info('Run ' + currentRun + ' of ' + maxRuns);
+
+      let offset = (currentRun - 1) * limit;
+      let data = await getData(offset, limit, conditions).then(data => {
+        let results = data.data;
+        let needsHeader = offset == 0;
+        if (!results || results.length == 0) {
+          console.info('No more data.');
+          currentRun = maxRuns + 1;
+        }
+        output = output.concat(results);
+      });
+
+      currentRun++;
+  }
+
+  return output;
+}
+
+/**
+ * Convert a 2D array into a CSV string
+ */
+ function arrayToCsv(data){
+  return data.map(row =>
+    row
+    .map(String)  // convert every value to String
+    .map(v => v.replaceAll('"', '""'))  // escape double quotes
+    .map(v => `"${v}"`)  // quote it
+    .join(',')  // comma-separated
+  ).join('\r\n');  // rows starting on new lines
+}
+
+/**
+ * Download contents as a file
+ * Source: https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
+ */
+ function downloadBlob(content, filename, contentType) {
+  // Create a blob
+  var blob = new Blob([content], { type: contentType });
+  var url = URL.createObjectURL(blob);
+
+  // Create a link to download it
+  var pom = document.createElement('a');
+  pom.href = url;
+  pom.setAttribute('download', filename);
+  pom.click();
+}
+
+async function main(conditions) {
+  let result = await getJson(conditions).then(result => {
+    let output = [];
+    output.push([
+      'Id',
+      'Title',
+      'Url',
+      'Url alias',
+      'Origin',
+      'Language code',
+      'Source name',
+      'Source shortname',
+      'Source type',
+      'Primary country',
+      'Country',
+      'Disaster name',
+      'Disaster code',
+      'Disaster type',
+      'Format name',
+      'OCHA product',
+      'Theme',
+      'Filename',
+      'Image',
+      'Headline title',
+      'Date created',
+      'Date original',      
+    ]);
+    for (let row of result) {
+      output.push([
+        row.id,
+        row.fields.title,
+        row.fields.url,
+        row.fields.url_alias,
+        row.fields.origin,
+        row.fields.language.map((x) => x.code).join(','),
+        row.fields.source.map((x) => x.name).join(','),
+        row.fields.source.map((x) => x.shortname).join(','),
+        row.fields.source.map((x) => x.type.name).join(','),
+        row.fields.primary_country && row.fields.primary_country.iso3 || '',
+        row.fields.country && row.fields.country.map((x) => x.iso3).join(','),
+        row.fields.disaster && row.fields.disaster.map((x) => x.name).join(','),
+        row.fields.disaster && row.fields.disaster.map((x) => x.type.map((y) => y.code)).join(','),
+        row.fields.disaster && row.fields.disaster.map((x) => x.type.map((y) => y.name)).join(','),
+        row.fields.format && row.fields.format.map((x) => x.name).join(','),
+        row.fields.ocha_product && row.fields.ocha_product.map((x) => x.name).join(','),
+        row.fields.theme && row.fields.theme.map((x) => x.name).join(','),
+        row.fields.file && row.fields.file.map((x) => x.filename).join(','),
+        row.fields.image && row.fields.image['url-small'],
+        row.fields.headline && row.fields.headline.title,
+        row.fields.date.created,
+        row.fields.date.original,
+      ])
+    }
+    console.log(result);
+    downloadBlob(arrayToCsv(output), 'test.csv', 'text/csv;charset=utf-8;');
+  });
+}
+
+document.getElementById('execute').addEventListener('click', function () {
+  let json_in = document.getElementById('json_in');
+  let f = JSON.parse(json_in.value);
+
+  if (f.filter && f.filter.conditions) {
+    main(f.filter.conditions);
+  }
+  else {
+    console.error('Invalid input');
+  }
+});
+
+</script>
+
+</body>
+</html>
