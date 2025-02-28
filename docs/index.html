@@ -7,6 +7,20 @@ a, a:hover {
   color: #29a4d9;
   padding: 3px;
 }
+
+#message {
+  margin: 1.5rem 0;
+  font-weight: 700;
+}
+
+#message.ok {
+  color: green;
+}
+
+#message.error {
+  color: red;
+}
+
 </style>
 </head>
 <body>
@@ -22,13 +36,24 @@ a, a:hover {
   </ol>
 <div>
   <p>JSON payload: </p>
-  <textarea rows="20" cols="120" id="json_in" placeholder="{
-    field: 'date.created',
-    value: {
-        from: '2024-01-01T00:00:00+00:00',
-        to: '2024-01-05T23:59:59+00:00'
-    }
-}"></textarea>
+  <textarea required rows="20" cols="120" id="json_in" placeholder='{
+  "filter": {
+    "conditions": [
+      {
+        "field": "date.created",
+        "value": {
+          "from": "2024-01-01T00:00:00+00:00",
+          "to": "2024-12-31T23:59:59+00:00"
+        }
+      },
+      {
+        "field": "source.id",
+        "value": "1503"
+      }
+    ],
+  },
+}'></textarea>
+  <div id="message"></div>
   <div><button id="execute">Execute</button></div>
 </div>
 
@@ -216,19 +241,38 @@ async function main(conditions) {
       ])
     }
     console.log(result);
+
+    let msg = document.getElementById('message');
+    msg.innerText = "CSV file generated";
+    msg.classList.add('ok');
+
     downloadBlob(arrayToCsv(output), 'test.csv', 'text/csv;charset=utf-8;');
   });
 }
 
 document.getElementById('execute').addEventListener('click', function () {
-  let json_in = document.getElementById('json_in');
-  let f = JSON.parse(json_in.value);
+  let f = {};
+  let msg = document.getElementById('message');
+  msg.innerText = '';
+  msg.classList.remove(['error', 'ok']);
+
+  try {
+    let json_in = document.getElementById('json_in');
+    f = JSON.parse(json_in.value);
+  }
+  catch (e) {
+    msg.innerText = "JSON isn't valid";
+    msg.classList.add('error');
+  }
 
   if (f.filter && f.filter.conditions) {
     main(f.filter.conditions);
+    msg.innerText = "Generating CSV file";
+    msg.classList.add('ok');
   }
   else {
-    console.error('Invalid input');
+    msg.innerText = "JSON is missing f.filter.conditions";
+    msg.classList.add('error');
   }
 });
 
