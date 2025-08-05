@@ -20,7 +20,7 @@ let filters = [
  */
 async function getData(offset = 0, limit = 10, filters = {}) {
     // Base URL for the API.
-    const url = new URL('https://api.reliefweb.int/v1/reports');
+    const url = new URL('https://api.reliefweb.int/v1/reports?appname=rw-api-csv-rw-1085');
 
     // Filters for the API.
     const params = {
