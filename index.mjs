@@ -23,7 +23,7 @@ async function getData(offset = 0, limit = 10, filters = {}) {
     const appname = process.env.RWAPI_APPNAME;
 
     // Base URL for the API.
-    const url = new URL(`https://api.reliefweb.int/v1/reports?appname=${appname}`);
+    const url = new URL(`https://api.reliefweb.int/v2/reports?appname=${appname}`);
 
     // Filters for the API.
     const params = {
