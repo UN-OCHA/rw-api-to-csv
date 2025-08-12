@@ -19,12 +19,15 @@ let filters = [
  * @param {int} limit
  */
 async function getData(offset = 0, limit = 10, filters = {}) {
+    // The appname for API access.
+    const appname = process.env.RWAPI_APPNAME;
+
     // Base URL for the API.
-    const url = new URL('https://api.reliefweb.int/v1/reports?appname=rw-api-csv-rw-1085');
+    const url = new URL(`https://api.reliefweb.int/v1/reports?appname=${appname}`);
 
     // Filters for the API.
     const params = {
-        appname: 'rw-api-csv-rw-1085',
+        appname: appname,
         profile: 'list',
         preset: 'latest',
         offset: offset,

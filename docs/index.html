@@ -25,7 +25,7 @@ a, a:hover {
 </head>
 <body>
   <h1>Generate CSV file</h1>
-  <p>Generate a CSV file with metadata for all found ReiliefWeb reports.</p>
+  <p>Generate a CSV file with metadata for all found ReliefWeb reports.</p>
   <p>Steps:</p>
   <ol>
     <li>Do a search on https://reliefweb.int/updates</li>
@@ -78,11 +78,11 @@ let conditions = [
  */
 async function getData(offset = 0, limit = 10, conditions = []) {
     // Base URL for the API.
-    const url = new URL('https://api.reliefweb.int/v1/reports');
+    const url = new URL('https://api.reliefweb.int/v2/reports');
 
     // Filters for the API.
     const params = {
-        appname: 'rw-api-csv-rw-1085',
+        appname: process.env.RWAPI_APPNAME,
         profile: 'list',
         preset: 'latest',
         offset: offset,
