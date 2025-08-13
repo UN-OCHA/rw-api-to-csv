@@ -26,6 +26,8 @@ jobs:
 
     - name: Start
       run: npm start
+      env:
+        RWAPI_APPNAME: ${{ secrets.RWAPI_APPNAME }}
 
     - name: Commit
       run: |
